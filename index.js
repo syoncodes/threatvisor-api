@@ -8,7 +8,7 @@ const authRoutes = require("./routes/auth");
 const endpointRoutes = require("./routes/endpoints");
 const aiRoutes = require("./routes/ai");
 const general = require("./routes/general");
-
+const cors = require("cors");
 // database connection
 connection();
 
@@ -17,14 +17,13 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Hello");
   });
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  next();
-});
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://threatvisor-4696anhjj-syoncodes.vercel.app');
-  next();
-});
+app.use(cors(
+    {
+        origin: ["https://threatvisor.vercel.app/"],
+        methods: ["POST", "GET", "DELETE"],
+        credentials: true
+    }
+));
 // routes
 app.use("/api/users", userRoutes);
 app.use("/api/orgusers", orguserRoutes);
