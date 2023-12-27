@@ -17,13 +17,11 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Hello");
   });
-app.use(cors(
-    {
-        origin: ["https://threatvisor.vercel.app/"],
-        methods: ["POST", "GET", "DELETE"],
-        credentials: true
-    }
-));
+app.use(cors({
+    origin: ["https://threatvisor.vercel.app"],
+    credentials: true
+}));
+
 
 // routes
 app.use("/api/users", userRoutes);
