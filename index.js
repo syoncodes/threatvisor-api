@@ -24,6 +24,7 @@ app.use(cors(
         credentials: true
     }
 ));
+
 // routes
 app.use("/api/users", userRoutes);
 app.use("/api/orgusers", orguserRoutes);
