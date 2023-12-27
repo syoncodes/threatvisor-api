@@ -21,6 +21,10 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   next();
 });
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://threatvisor-4696anhjj-syoncodes.vercel.app');
+  next();
+});
 // routes
 app.use("/api/users", userRoutes);
 app.use("/api/orgusers", orguserRoutes);
