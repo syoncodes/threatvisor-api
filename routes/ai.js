@@ -20,7 +20,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-router.use(cors());
+
 router.use(express.json());
 
 const apiLimiter = rateLimit({
