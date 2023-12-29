@@ -47,6 +47,7 @@ const organizationSchema = new mongoose.Schema({
       senderEmail: String,
       recipientEmails: String,
       send: Boolean,
+      maskedLinkMask: String,
       uniqueClickCount: Number,
       recipientCount: Number,
       url: String,
