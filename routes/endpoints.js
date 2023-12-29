@@ -565,7 +565,7 @@ router.post("/fetch-org-id", async (req, res) => {
 
 router.post('/fetch-endpoint-details', async (req, res) => {
   try {
-      const { userId, domain } = req.body;
+      const { userId, domain, ip, title } = req.body;
 
       console.log('Received request to fetch endpoint details with data:', req.body);
 
@@ -579,8 +579,8 @@ router.post('/fetch-endpoint-details', async (req, res) => {
 
       const findEndpoint = (endpoint) => {
           return endpoint.items.some(item => item.service === "Domain" && item.url === domain);
-          return endpoint.items.some(item => item.service === "Phishing" && item.title === domain);
-          return endpoint.items.some(item => item.service === "Network" && item.ipAddress === domain);
+          return endpoint.items.some(item => item.service === "Phishing" && item.title === title);
+          return endpoint.items.some(item => item.service === "Network" && item.ipAddress === ip);
       };
 
       if (user.organizationName) {
