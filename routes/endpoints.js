@@ -579,6 +579,8 @@ router.post('/fetch-endpoint-details', async (req, res) => {
 
       const findEndpoint = (endpoint) => {
           return endpoint.items.some(item => item.service === "Domain" && item.url === domain);
+          return endpoint.items.some(item => item.service === "Phishing" && item.title === domain);
+          return endpoint.items.some(item => item.service === "Network" && item.ipAddress === domain);
       };
 
       if (user.organizationName) {
