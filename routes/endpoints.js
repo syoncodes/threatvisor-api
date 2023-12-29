@@ -577,20 +577,15 @@ router.post('/fetch-endpoint-details', async (req, res) => {
 
       let endpointToEdit = null;
 
-      const findEndpoint = (endpoints) => {
-    for (let endpoint of endpoints) {
-        if (endpoint.items.some(item =>
-            (domain && item.service === "Domain" && item.url === domain) ||
-            (title && item.service === "Phishing" && item.title === title) ||
-            (ip && item.service === "Network" && item.ipAddress === ip) ||
-            // Add conditions for other types of endpoints here
-            (/* other conditions based on service type */) // Example
-        )) {
-            return endpoint;
-        }
-    }
-    return null; // Return null if no matching endpoint is found
-};
+      const findEndpoint = (endpoint) => {
+      return endpoint.items.some(item => 
+          (item.service === "Domain" && item.url === domain) ||
+          (item.service === "Phishing" && item.title === title)
+      ) || endpoint.items.some(item => 
+          (item.service === "Network" && item.ipAddress === ip)
+      );
+  };
+
 
       
 
