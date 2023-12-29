@@ -578,10 +578,18 @@ router.post('/fetch-endpoint-details', async (req, res) => {
       let endpointToEdit = null;
 
       const findEndpoint = (endpoint) => {
-          return endpoint.items.some(item => item.service === "Domain" && item.url === domain);
-          return endpoint.items.some(item => item.service === "Phishing" && item.title === title);
-          return endpoint.items.some(item => item.service === "Network" && item.ipAddress === ip);
+          return endpoint.items.some(item => {
+              if (item.service === "Domain" && item.url === domain) {
+                  return true;
+              } else if (item.service === "Phishing" && item.title === title) {
+                  return true;
+              } else if (item.service === "Network" && item.ipAddress === ip) {
+                  return true;
+              }
+              return false;
+          });
       };
+
 
       if (user.organizationName) {
           const organization = await Organization.findOne({ organizationName: user.organizationName });
