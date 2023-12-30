@@ -89,7 +89,7 @@ router.post('/api/add/chat-session', async (req, res) => {
                 form.append('prompt', text); // Add other form fields as needed
                 const headers = form.getHeaders(); // Get the headers for the multipart request
 
-                const pythonResponse = await axios.post('http://20.169.49.29:6000/chat', form, { headers });
+                const pythonResponse = await axios.post('http://20.169.49.29:6001/chat', form, { headers });
 
                 const botResponse = pythonResponse.data.response;
                 // Store bot's response
