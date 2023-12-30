@@ -507,7 +507,7 @@ router.post("/fetch-org-id", async (req, res) => {
 
   router.delete('/delete-endpoint/user', async (req, res) => {
     try {
-        const { userId, domain } = req.query;
+        const { userId, domain, title, ip } = req.query;
         console.log('Received request to delete single endpoint with data:', req.query);
 
         // First, find the user
