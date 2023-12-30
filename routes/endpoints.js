@@ -535,14 +535,21 @@ router.post("/fetch-org-id", async (req, res) => {
 
         // Define the filter function to identify the endpoint to be deleted
         const filterEndpoint = (endpoint) => {
-            return !endpoint.items.some(item => {
-                if (domain && item.service === "Domain" && item.url === domain) {
-                    return true;
-                }
-                // Add similar conditions for other services
-                return false;
-            });
-        };
+          return !endpoint.items.some(item => {
+              if (domain && item.service === "Domain" && item.url === domain) {
+                  return true;
+              }
+              if (title && item.service === "Phishing" && item.title === title) {
+                  return true;
+              }
+              if (ip && item.service === "Network" && item.ipAddress === ip) {
+                  return true;
+              }
+              // Add similar conditions for other services here
+              return false;
+          });
+      };
+
 
         // Filter the endpoints
         const originalLength = documentToUpdate.endpoints.length;
