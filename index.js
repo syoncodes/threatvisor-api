@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
     res.send("Hello");
   });
 app.use(cors({
-    origin: ["https://threatvisor.vercel.app"],
+    origin: ["https://threatvisor.org"],
     credentials: true
 }));
 
