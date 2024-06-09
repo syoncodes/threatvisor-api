@@ -825,40 +825,36 @@ router.post('/getVulnerabilities', async (req, res) => {
   });
 
   router.post('/getVulnerabilityDetails', async (req, res) => {
-    const { userEmail } = req.body;
-  
-    try {
+  const { userEmail } = req.body;
 
-  
-      const user = await User.findOne({ email: userEmail });
-      if (!user) {
-
-        return res.status(404).send('User not found');
-      }
-  
-
-  
-      let vulnerabilities = [];
-  
-      if (user.organizationName) {
-        const organization = await Organization.findOne({ organizationName: user.organizationName });
-        if (organization) {
-
-          vulnerabilities = extractVulnerabilities(organization);
-        } else {
-
-        }
-      } else {
-
-      }
-  
-
-      res.json({ vulnerabilities });
-    } catch (error) {
-      console.error('Error fetching vulnerability details:', error);
-      res.status(500).send('Internal Server Error');
+  try {
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      return res.status(404).send('User not found');
     }
-  });
+
+    let vulnerabilities = [];
+
+    if (user.organizationName) {
+      const organization = await Organization.findOne({ organizationName: user.organizationName });
+      if (organization) {
+        vulnerabilities = extractVulnerabilities(organization);
+      } else {
+        // Handle the case where the organization is not found
+        return res.status(404).send('Organization not found');
+      }
+    } else {
+      // Extract vulnerabilities from the user document if the user is not part of an organization
+      vulnerabilities = extractVulnerabilities(user);
+    }
+
+    res.json({ vulnerabilities });
+  } catch (error) {
+    console.error('Error fetching vulnerability details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
   
   function extractVulnerabilities(organization) {
     const vulnerabilities = {
