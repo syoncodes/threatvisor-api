@@ -984,41 +984,41 @@ router.post('/getVulnerabilities', async (req, res) => {
 }
 
 router.post('/getExploitDetails', async (req, res) => {
-  const { userEmail } = req.body;
+    const { userEmail } = req.body;
 
-  console.log("getExploitDetails called with userEmail:", userEmail);
+    console.log("getExploitDetails called with userEmail:", userEmail);
 
-  try {
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-      console.log("User not found for email:", userEmail);
-      return res.status(404).send('User not found');
-    }
-
-    let exploits = {};
-
-    console.log("User found. Organization name:", user.organizationName);
-
-    if (user.organizationName) {
-      const organization = await Organization.findOne({ organizationName: user.organizationName });
-      console.log("Organization found:", organization);
-
-      if (organization) {
-        exploits = extractExploits(organization);
-      } else {
-        console.log("No organization found for name:", user.organizationName);
+    try {
+      const user = await User.findOne({ email: userEmail });
+      if (!user) {
+        console.log("User not found for email:", userEmail);
+        return res.status(404).send('User not found');
       }
-    } else {
-      console.log("User has no associated organization name:", user);
-    }
 
-    console.log("Sending exploits:", exploits);
-    res.json({ exploits });
-  } catch (error) {
-    console.error('Error fetching exploit details:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
+      let exploits = [];
+
+      console.log("User found. Organization name:", user.organizationName);
+
+      if (user.organizationName) {
+        const organization = await Organization.findOne({ organizationName: user.organizationName });
+        console.log("Organization found:", organization);
+
+        if (organization) {
+          exploits = extractExploits(organization);
+        } else {
+          console.log("No organization found for name:", user.organizationName);
+        }
+      } else {
+        console.log("User has no associated organization name:", user);
+      }
+
+      console.log("Sending exploits:", exploits);
+      res.json({ exploits });
+    } catch (error) {
+      console.error('Error fetching exploit details:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
 function extractExploits(organization) {
   const exploits = {};
