@@ -21,6 +21,24 @@ const weeklyLogSchema = new mongoose.Schema({
 	},
 	
   });
+const referenceSchema = new mongoose.Schema({
+  title: String,
+  url: String
+}, { _id: false });
+const exploitSchema = new mongoose.Schema({
+  title: String,
+  link: String,
+  content: String,
+  source: String,
+  description: String,
+  ai_output: String,
+  examples: String,
+  references: [referenceSchema],
+  observed_examples: String,
+  detection_methods: String,
+  demonstrative_examples: String,
+  extended_description: String,
+}, { _id: false });
   const userSchema = new mongoose.Schema({
 	organizationName: { type: String, required: false },
 	firstName: { type: String, required: true },
@@ -64,16 +82,11 @@ const weeklyLogSchema = new mongoose.Schema({
 		},
 		scanned: Date,
 		exploits: {
-		  type: Map,
-		  of: {
-			type: [{
-			  title: String,
-			  link: String,
-			  content: String,
-			  source: String
-			}], // Disable _id for subdocument
-		  }
-		},
+	      type: Map,
+	      of: {
+	        type: [exploitSchema], // Use the updated exploit schema
+	      }
+	    },
 	  }],
 	  status: String,
 	  hygiene: String,
