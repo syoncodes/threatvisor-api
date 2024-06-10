@@ -983,75 +983,85 @@ router.post('/getVulnerabilities', async (req, res) => {
     return vulnerabilities;
 }
 
-  
-  // Server-side: Node.js with Express
-  router.post('/getExploitDetails', async (req, res) => {
-    const { userEmail } = req.body;
-  
-    console.log("getExploitDetails called with userEmail:", userEmail);
-  
-    try {
-      const user = await User.findOne({ email: userEmail });
-      if (!user) {
-        console.log("User not found for email:", userEmail);
-        return res.status(404).send('User not found');
-      }
-  
-      let exploits = [];
-  
-      console.log("User found. Organization name:", user.organizationName);
-  
-      if (user.organizationName) {
-        const organization = await Organization.findOne({ organizationName: user.organizationName });
-        console.log("Organization found:", organization);
-  
-        if (organization) {
-          exploits = extractExploits(organization);
-        } else {
-          console.log("No organization found for name:", user.organizationName);
-        }
-      } else {
-        console.log("User has no associated organization name:", user);
-      }
-  
-      console.log("Sending exploits:", exploits);
-      res.json({ exploits });
-    } catch (error) {
-      console.error('Error fetching exploit details:', error);
-      res.status(500).send('Internal Server Error');
+router.post('/getExploitDetails', async (req, res) => {
+  const { userEmail } = req.body;
+
+  console.log("getExploitDetails called with userEmail:", userEmail);
+
+  try {
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      console.log("User not found for email:", userEmail);
+      return res.status(404).send('User not found');
     }
-  });
-  
-  function extractExploits(organization) {
-    const exploits = {};
 
-    organization.endpoints.forEach(endpoint => {
-        endpoint.items.forEach(item => {
-            if (item.service === 'Domain' && item.exploits) {
-                item.exploits.forEach((exploitDetails, cveId) => {
-                    if (!exploits[cveId]) {
-                        exploits[cveId] = [];
-                    }
+    let exploits = {};
 
-                    exploitDetails.forEach(exploitDetail => {
-                        exploits[cveId].push({
-                            title: exploitDetail.title,
-                            content: exploitDetail.content,
-                            source: exploitDetail.source,
-                            link: exploitDetail.link,
-                            location: item.url, // Location of the exploit
-                            date: new Date(item.scanned).toISOString().split('T')[0] // Date when the exploit was scanned
-                        });
-                    });
-                });
+    console.log("User found. Organization name:", user.organizationName);
+
+    if (user.organizationName) {
+      const organization = await Organization.findOne({ organizationName: user.organizationName });
+      console.log("Organization found:", organization);
+
+      if (organization) {
+        exploits = extractExploits(organization);
+      } else {
+        console.log("No organization found for name:", user.organizationName);
+      }
+    } else {
+      console.log("User has no associated organization name:", user);
+    }
+
+    console.log("Sending exploits:", exploits);
+    res.json({ exploits });
+  } catch (error) {
+    console.error('Error fetching exploit details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+function extractExploits(organization) {
+  const exploits = {};
+
+  organization.endpoints.forEach(endpoint => {
+    endpoint.items.forEach(item => {
+      if (item.service === 'Domain' && item.exploits) {
+        Object.entries(item.exploits).forEach(([exploitId, exploitDetails]) => {
+          if (!exploits[exploitId]) {
+            exploits[exploitId] = [];
+          }
+
+          exploitDetails.forEach(exploitDetail => {
+            let content = `
+              Content: ${exploitDetail.content || 'N/A'}
+              Description: ${exploitDetail.description || 'N/A'}
+              Extended Description: ${exploitDetail.extended_description || 'N/A'}
+              Examples: ${exploitDetail.examples || 'N/A'}
+              Observed Examples: ${exploitDetail.observed_examples || 'N/A'}
+              Detection Methods: ${exploitDetail.detection_methods || 'N/A'}
+              Demonstrative Examples: ${exploitDetail.demonstrative_examples || 'N/A'}
+            `;
+
+            if (exploitDetail.references) {
+              content += `\nReferences:\n${exploitDetail.references.map(ref => `${ref.title}: ${ref.url}`).join('\n')}`;
             }
+
+            exploits[exploitId].push({
+              title: exploitDetail.title,
+              link: exploitDetail.link,
+              content: content,
+              source: exploitDetail.source,
+              location: item.url,
+              date: new Date(item.scanned).toISOString().split('T')[0]
+            });
+          });
         });
+      }
     });
+  });
 
-    return exploits;
+  return exploits;
 }
-
-
   
   router.post('/getVulnerabilityLog', async (req, res) => {
     const { userEmail } = req.body;
