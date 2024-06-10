@@ -933,73 +933,76 @@ router.post('/getVulnerabilities', async (req, res) => {
 });
 
   
-  function extractExploits(organization) {
-  const exploits = {};
+function extractVulnerabilities2(organization) {
+    const vulnerabilities = {
+      High: {},
+      Medium: {},
+      Low: {},
+      Informational: {}
+    };
 
-  organization.endpoints.forEach(endpoint => {
-    endpoint.items.forEach(item => {
-      if (item.service === 'Domain' && item.exploits) {
-        Object.entries(item.exploits).forEach(([exploitId, exploitDetails]) => {
-          if (!exploits[exploitId]) {
-            exploits[exploitId] = [];
-          }
-
-          if (Array.isArray(exploitDetails)) {
-            exploitDetails.forEach(exploitDetail => {
-              let content = `
-                Content: ${exploitDetail.content || 'N/A'}
-                Description: ${exploitDetail.description || 'N/A'}
-                Extended Description: ${exploitDetail.extended_description || 'N/A'}
-                Examples: ${exploitDetail.examples || 'N/A'}
-                Observed Examples: ${exploitDetail.observed_examples || 'N/A'}
-                Detection Methods: ${exploitDetail.detection_methods || 'N/A'}
-                Demonstrative Examples: ${exploitDetail.demonstrative_examples || 'N/A'}
-              `;
-
-              if (exploitDetail.references) {
-                content += `\nReferences:\n${exploitDetail.references.map(ref => `${ref.title}: ${ref.url}`).join('\n')}`;
+    organization.endpoints.forEach(endpoint => {
+      endpoint.items.forEach(item => {
+        if (item.service === 'Domain') {
+          // Assuming item.results is a Map
+          item.results.forEach((details, issue) => {
+            const threatLevel = details.ThreatLevel;
+            if (threatLevel && vulnerabilities[threatLevel] !== undefined) {
+              if (!vulnerabilities[threatLevel][issue]) {
+                vulnerabilities[threatLevel][issue] = {
+                  locations: new Set(),
+                  dates: new Set(),
+                  paths: []  // Initialize an array to store paths
+                };
               }
+              if (vulnerabilities[threatLevel][issue]) {
+                vulnerabilities[threatLevel][issue].description = details.Description || '';
+                vulnerabilities[threatLevel][issue].solution = details.Solution || '';
+                vulnerabilities[threatLevel][issue].paths.push(...details.Paths);  // Add paths from the current item
+              }
+              // Add the URL to the locations set
+              vulnerabilities[threatLevel][issue].locations.add(item.url);
 
-              exploits[exploitId].push({
-                title: exploitDetail.title,
-                link: exploitDetail.link,
-                content: content,
-                source: exploitDetail.source,
-                location: item.url,
-                date: new Date(item.scanned).toISOString().split('T')[0]
-              });
-            });
-          } else {
-            console.error(`Expected exploitDetails to be an array, but got ${typeof exploitDetails}:`, exploitDetails);
-          }
-        });
-      }
+              // Add the scanned date to the dates set
+              vulnerabilities[threatLevel][issue].dates.add(new Date(item.scanned).toISOString().split('T')[0]);
+            }
+          });
+        }
+      });
     });
-  });
 
-  return exploits;
+    // Convert the sets to arrays and calculate occurrences
+    Object.keys(vulnerabilities).forEach(severity => {
+      Object.keys(vulnerabilities[severity]).forEach(issue => {
+        vulnerabilities[severity][issue].locations = Array.from(vulnerabilities[severity][issue].locations);
+        vulnerabilities[severity][issue].dates = Array.from(vulnerabilities[severity][issue].dates);
+        vulnerabilities[severity][issue].occurrences = vulnerabilities[severity][issue].paths.length;  // Set occurrences as the length of paths array
+      });
+    });
+
+    return vulnerabilities;
 }
 
-router.post('/getExploitDetails', async (req, res) => {
+ router.post('/getExploitDetails', async (req, res) => {
     const { userEmail } = req.body;
-
+  
     console.log("getExploitDetails called with userEmail:", userEmail);
-
+  
     try {
       const user = await User.findOne({ email: userEmail });
       if (!user) {
         console.log("User not found for email:", userEmail);
         return res.status(404).send('User not found');
       }
-
+  
       let exploits = [];
-
+  
       console.log("User found. Organization name:", user.organizationName);
-
+  
       if (user.organizationName) {
         const organization = await Organization.findOne({ organizationName: user.organizationName });
         console.log("Organization found:", organization);
-
+  
         if (organization) {
           exploits = extractExploits(organization);
         } else {
@@ -1008,7 +1011,7 @@ router.post('/getExploitDetails', async (req, res) => {
       } else {
         console.log("User has no associated organization name:", user);
       }
-
+  
       console.log("Sending exploits:", exploits);
       res.json({ exploits });
     } catch (error) {
@@ -1016,52 +1019,43 @@ router.post('/getExploitDetails', async (req, res) => {
       res.status(500).send('Internal Server Error');
     }
   });
+  
+  function extractExploits(organization) {
+    const exploits = {};
 
-function extractExploits(organization) {
-  const exploits = {};
+    organization.endpoints.forEach(endpoint => {
+        endpoint.items.forEach(item => {
+            if (item.service === 'Domain' && item.exploits) {
+                item.exploits.forEach((exploitDetails, cveId) => {
+                    if (!exploits[cveId]) {
+                        exploits[cveId] = [];
+                    }
 
-  organization.endpoints.forEach(endpoint => {
-    endpoint.items.forEach(item => {
-      if (item.service === 'Domain' && item.exploits) {
-        Object.entries(item.exploits).forEach(([exploitId, exploitDetails]) => {
-          if (!exploits[exploitId]) {
-            exploits[exploitId] = [];
-          }
-
-          if (Array.isArray(exploitDetails)) {
-            exploitDetails.forEach(exploitDetail => {
-              let content = `
-                Content: ${exploitDetail.content || 'N/A'}
-                Description: ${exploitDetail.description || 'N/A'}
-                Extended Description: ${exploitDetail.extended_description || 'N/A'}
-                Examples: ${exploitDetail.examples || 'N/A'}
-                Observed Examples: ${exploitDetail.observed_examples || 'N/A'}
-                Detection Methods: ${exploitDetail.detection_methods || 'N/A'}
-                Demonstrative Examples: ${exploitDetail.demonstrative_examples || 'N/A'}
-              `;
-
-              if (exploitDetail.references) {
-                content += `\nReferences:\n${exploitDetail.references.map(ref => `${ref.title}: ${ref.url}`).join('\n')}`;
-              }
-
-              exploits[exploitId].push({
-                title: exploitDetail.title,
-                link: exploitDetail.link,
-                content: content,
-                source: exploitDetail.source,
-                location: item.url,
-                date: new Date(item.scanned).toISOString().split('T')[0]
-              });
-            });
-          } else {
-            console.error(`Expected exploitDetails to be an array, but got ${typeof exploitDetails}:`, exploitDetails);
-          }
+                    exploitDetails.forEach(exploitDetail => {
+                        let content = `
+                          Content: ${exploitDetail.content || 'N/A'}
+                          Description: ${exploitDetail.description || 'N/A'}
+                          Extended Description: ${exploitDetail.extended_description || 'N/A'}
+                          Examples: ${exploitDetail.examples || 'N/A'}
+                          Observed Examples: ${exploitDetail.observed_examples || 'N/A'}
+                          Detection Methods: ${exploitDetail.detection_methods || 'N/A'}
+                          Demonstrative Examples: ${exploitDetail.demonstrative_examples || 'N/A'}
+                        `;
+                        exploits[cveId].push({
+                            title: exploitDetail.title,
+                            content: content,
+                            source: exploitDetail.source,
+                            link: exploitDetail.link,
+                            location: item.url, // Location of the exploit
+                            date: new Date(item.scanned).toISOString().split('T')[0] // Date when the exploit was scanned
+                        });
+                    });
+                });
+            }
         });
-      }
     });
-  });
 
-  return exploits;
+    return exploits;
 }
 
 module.exports = router;
