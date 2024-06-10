@@ -1032,15 +1032,14 @@ function extractVulnerabilities2(organization) {
                     }
 
                     exploitDetails.forEach(exploitDetail => {
-                        let content = `
-                          Content: ${exploitDetail.content || ''}\r\n
-                          Description: ${exploitDetail.description || ''}\r\n
-                          Extended Description: ${exploitDetail.extended_description || ''}\r\n
-                          Examples: ${exploitDetail.examples || ''}\r\n
-                          Observed Examples: ${exploitDetail.observed_examples || ''}\r\n
-                          Detection Methods: ${exploitDetail.detection_methods || ''}\r\n
-                          Demonstrative Examples: ${exploitDetail.demonstrative_examples || ''}\r\n
-                        `;
+                        let content = '';
+                          if (exploitDetail.content) content += `Content: ${exploitDetail.content}\r\n`;
+                          if (exploitDetail.description) content += `Description: ${exploitDetail.description}\r\n`;
+                          if (exploitDetail.extended_description) content += `Extended Description: ${exploitDetail.extended_description}\r\n`;
+                          if (exploitDetail.examples) content += `Examples: ${exploitDetail.examples}\r\n`;
+                          if (exploitDetail.observed_examples) content += `Observed Examples: ${exploitDetail.observed_examples}\r\n`;
+                          if (exploitDetail.detection_methods) content += `Detection Methods: ${exploitDetail.detection_methods}\r\n`;
+                          if (exploitDetail.demonstrative_examples) content += `Demonstrative Examples: ${exploitDetail.demonstrative_examples}\r\n`;
                         exploits[cveId].push({
                             title: exploitDetail.title,
                             content: content,
