@@ -1033,13 +1033,14 @@ function extractVulnerabilities2(organization) {
 
                     exploitDetails.forEach(exploitDetail => {
                         let content = '';
-                          if (exploitDetail.content) content += `Content: ${exploitDetail.content}\r\n`;
-                          if (exploitDetail.description) content += `Description: ${exploitDetail.description}\r\n`;
-                          if (exploitDetail.extended_description) content += `Extended Description: ${exploitDetail.extended_description}\r\n`;
-                          if (exploitDetail.examples) content += `Examples: ${exploitDetail.examples}\r\n`;
-                          if (exploitDetail.observed_examples) content += `Observed Examples: ${exploitDetail.observed_examples}\r\n`;
-                          if (exploitDetail.detection_methods) content += `Detection Methods: ${exploitDetail.detection_methods}\r\n`;
-                          if (exploitDetail.demonstrative_examples) content += `Demonstrative Examples: ${exploitDetail.demonstrative_examples}\r\n`;
+                          if (exploitDetail.ai_output) content += `${exploitDetail.ai_output}\r\n`;
+                          else if (exploitDetail.content) content += `Content: ${exploitDetail.content}\r\n`;
+                          else if (exploitDetail.description) content += `Description: ${exploitDetail.description}\r\n`;
+                          else if (exploitDetail.extended_description) content += `Extended Description: ${exploitDetail.extended_description}\r\n`;
+                          else if (exploitDetail.examples) content += `Examples: ${exploitDetail.examples}\r\n`;
+                          else if (exploitDetail.observed_examples) content += `Observed Examples: ${exploitDetail.observed_examples}\r\n`;
+                          else if (exploitDetail.detection_methods) content += `Detection Methods: ${exploitDetail.detection_methods}\r\n`;
+                          else if (exploitDetail.demonstrative_examples) content += `Demonstrative Examples: ${exploitDetail.demonstrative_examples}\r\n`;
                         exploits[cveId].push({
                             title: exploitDetail.title,
                             content: content,
