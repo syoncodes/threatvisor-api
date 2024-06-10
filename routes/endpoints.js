@@ -1032,8 +1032,8 @@ function extractVulnerabilities2(organization) {
                     }
 
                     exploitDetails.forEach(exploitDetail => {
-                        let content = '';
-                          if (exploitDetail.ai_output) content += `${exploitDetail.ai_output}\r\n`;
+                        //let content = '';
+                          //if (exploitDetail.ai_output) content += `${exploitDetail.ai_output}\r\n`;
                           //if (exploitDetail.content) content += `Content: ${exploitDetail.content}\r\n`;
                           //if (exploitDetail.description) content += `Description: ${exploitDetail.description}\r\n`;
                           //if (exploitDetail.extended_description) content += `Extended Description: ${exploitDetail.extended_description}\r\n`;
@@ -1043,7 +1043,7 @@ function extractVulnerabilities2(organization) {
                           //if (exploitDetail.demonstrative_examples) content += `Demonstrative Examples: ${exploitDetail.demonstrative_examples}\r\n`;
                         exploits[cveId].push({
                             title: exploitDetail.title,
-                            content: content,
+                            content: exploitDetail.ai_output,
                             source: exploitDetail.source,
                             link: exploitDetail.link,
                             location: item.url, // Location of the exploit
