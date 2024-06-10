@@ -27,7 +27,19 @@ const weeklyLogSchema = new mongoose.Schema({
     filtered: String,
     total_endpoints: String
   },
-  
+const exploitSchema = new mongoose.Schema({
+  title: String,
+  link: String,
+  content: String,
+  source: String,
+  description: String,
+  examples: String,
+  references: [referenceSchema],
+  observed_examples: String,
+  detection_methods: String,
+  demonstrative_examples: String,
+  extended_description: String,
+}, { _id: false });
 });
 const organizationSchema = new mongoose.Schema({
   organizationName: { type: String, required: true },
@@ -75,16 +87,11 @@ const organizationSchema = new mongoose.Schema({
       },
       scanned: Date,
       exploits: {
-        type: Map,
-        of: {
-          type: [{
-            title: String,
-            link: String,
-            content: String,
-            source: String
-          }], // Disable _id for subdocument
-        }
-      },
+      type: Map,
+      of: {
+        type: [exploitSchema], // Use the updated exploit schema
+      }
+    },
     }],
     status: String,
     hygiene: String,
