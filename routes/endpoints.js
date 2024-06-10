@@ -1062,6 +1062,8 @@ function extractExploits(organization) {
 
   return exploits;
 }
+
+module.exports = router;
   
   router.post('/getVulnerabilityLog', async (req, res) => {
     const { userEmail } = req.body;
