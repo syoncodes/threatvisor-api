@@ -28,6 +28,10 @@ const weeklyLogSchema = new mongoose.Schema({
     total_endpoints: String
   },
 });
+const referenceSchema = new mongoose.Schema({
+  title: String,
+  url: String
+}, { _id: false });
 const exploitSchema = new mongoose.Schema({
   title: String,
   link: String,
