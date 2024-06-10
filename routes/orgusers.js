@@ -38,6 +38,7 @@ const exploitSchema = new mongoose.Schema({
   content: String,
   source: String,
   description: String,
+  ai_output: String,
   examples: String,
   references: [referenceSchema],
   observed_examples: String,
