@@ -1033,13 +1033,13 @@ function extractVulnerabilities2(organization) {
 
                     exploitDetails.forEach(exploitDetail => {
                         let content = `
-                          Content: ${exploitDetail.content || ''}\n
-                          Description: ${exploitDetail.description || ''}\n
-                          Extended Description: ${exploitDetail.extended_description || ''}\n
+                          Content: ${exploitDetail.content || ''}<br>
+                          Description: ${exploitDetail.description || ''}<br>
+                          Extended Description: ${exploitDetail.extended_description || ''}<br>
                           Examples: ${exploitDetail.examples || ''}\n
-                          Observed Examples: ${exploitDetail.observed_examples || ''}\n
-                          Detection Methods: ${exploitDetail.detection_methods || ''}\n
-                          Demonstrative Examples: ${exploitDetail.demonstrative_examples || ''}\n
+                          Observed Examples: ${exploitDetail.observed_examples || ''}<br>
+                          Detection Methods: ${exploitDetail.detection_methods || ''}<br>
+                          Demonstrative Examples: ${exploitDetail.demonstrative_examples || ''}<br>
                         `;
                         exploits[cveId].push({
                             title: exploitDetail.title,
