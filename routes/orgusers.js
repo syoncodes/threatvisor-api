@@ -27,6 +27,7 @@ const weeklyLogSchema = new mongoose.Schema({
     filtered: String,
     total_endpoints: String
   },
+});
 const exploitSchema = new mongoose.Schema({
   title: String,
   link: String,
@@ -40,7 +41,6 @@ const exploitSchema = new mongoose.Schema({
   demonstrative_examples: String,
   extended_description: String,
 }, { _id: false });
-});
 const organizationSchema = new mongoose.Schema({
   organizationName: { type: String, required: true },
   organizationID: { type: String, required: true },
