@@ -933,54 +933,51 @@ router.post('/getVulnerabilities', async (req, res) => {
 });
 
   
-  function extractVulnerabilities2(organization) {
-    const vulnerabilities = {
-      High: {},
-      Medium: {},
-      Low: {},
-      Informational: {}
-    };
+  function extractExploits(organization) {
+  const exploits = {};
 
-    organization.endpoints.forEach(endpoint => {
-      endpoint.items.forEach(item => {
-        if (item.service === 'Domain') {
-          // Assuming item.results is a Map
-          item.results.forEach((details, issue) => {
-            const threatLevel = details.ThreatLevel;
-            if (threatLevel && vulnerabilities[threatLevel] !== undefined) {
-              if (!vulnerabilities[threatLevel][issue]) {
-                vulnerabilities[threatLevel][issue] = {
-                  locations: new Set(),
-                  dates: new Set(),
-                  paths: []  // Initialize an array to store paths
-                };
+  organization.endpoints.forEach(endpoint => {
+    endpoint.items.forEach(item => {
+      if (item.service === 'Domain' && item.exploits) {
+        Object.entries(item.exploits).forEach(([exploitId, exploitDetails]) => {
+          if (!exploits[exploitId]) {
+            exploits[exploitId] = [];
+          }
+
+          if (Array.isArray(exploitDetails)) {
+            exploitDetails.forEach(exploitDetail => {
+              let content = `
+                Content: ${exploitDetail.content || 'N/A'}
+                Description: ${exploitDetail.description || 'N/A'}
+                Extended Description: ${exploitDetail.extended_description || 'N/A'}
+                Examples: ${exploitDetail.examples || 'N/A'}
+                Observed Examples: ${exploitDetail.observed_examples || 'N/A'}
+                Detection Methods: ${exploitDetail.detection_methods || 'N/A'}
+                Demonstrative Examples: ${exploitDetail.demonstrative_examples || 'N/A'}
+              `;
+
+              if (exploitDetail.references) {
+                content += `\nReferences:\n${exploitDetail.references.map(ref => `${ref.title}: ${ref.url}`).join('\n')}`;
               }
-              if (vulnerabilities[threatLevel][issue]) {
-                vulnerabilities[threatLevel][issue].description = details.Description || '';
-                vulnerabilities[threatLevel][issue].solution = details.Solution || '';
-                vulnerabilities[threatLevel][issue].paths.push(...details.Paths);  // Add paths from the current item
-              }
-              // Add the URL to the locations set
-              vulnerabilities[threatLevel][issue].locations.add(item.url);
 
-              // Add the scanned date to the dates set
-              vulnerabilities[threatLevel][issue].dates.add(new Date(item.scanned).toISOString().split('T')[0]);
-            }
-          });
-        }
-      });
+              exploits[exploitId].push({
+                title: exploitDetail.title,
+                link: exploitDetail.link,
+                content: content,
+                source: exploitDetail.source,
+                location: item.url,
+                date: new Date(item.scanned).toISOString().split('T')[0]
+              });
+            });
+          } else {
+            console.error(`Expected exploitDetails to be an array, but got ${typeof exploitDetails}:`, exploitDetails);
+          }
+        });
+      }
     });
+  });
 
-    // Convert the sets to arrays and calculate occurrences
-    Object.keys(vulnerabilities).forEach(severity => {
-      Object.keys(vulnerabilities[severity]).forEach(issue => {
-        vulnerabilities[severity][issue].locations = Array.from(vulnerabilities[severity][issue].locations);
-        vulnerabilities[severity][issue].dates = Array.from(vulnerabilities[severity][issue].dates);
-        vulnerabilities[severity][issue].occurrences = vulnerabilities[severity][issue].paths.length;  // Set occurrences as the length of paths array
-      });
-    });
-
-    return vulnerabilities;
+  return exploits;
 }
 
 router.post('/getExploitDetails', async (req, res) => {
