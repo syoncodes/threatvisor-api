@@ -1028,30 +1028,34 @@ function extractExploits(organization) {
             exploits[exploitId] = [];
           }
 
-          exploitDetails.forEach(exploitDetail => {
-            let content = `
-              Content: ${exploitDetail.content || 'N/A'}
-              Description: ${exploitDetail.description || 'N/A'}
-              Extended Description: ${exploitDetail.extended_description || 'N/A'}
-              Examples: ${exploitDetail.examples || 'N/A'}
-              Observed Examples: ${exploitDetail.observed_examples || 'N/A'}
-              Detection Methods: ${exploitDetail.detection_methods || 'N/A'}
-              Demonstrative Examples: ${exploitDetail.demonstrative_examples || 'N/A'}
-            `;
+          if (Array.isArray(exploitDetails)) {
+            exploitDetails.forEach(exploitDetail => {
+              let content = `
+                Content: ${exploitDetail.content || 'N/A'}
+                Description: ${exploitDetail.description || 'N/A'}
+                Extended Description: ${exploitDetail.extended_description || 'N/A'}
+                Examples: ${exploitDetail.examples || 'N/A'}
+                Observed Examples: ${exploitDetail.observed_examples || 'N/A'}
+                Detection Methods: ${exploitDetail.detection_methods || 'N/A'}
+                Demonstrative Examples: ${exploitDetail.demonstrative_examples || 'N/A'}
+              `;
 
-            if (exploitDetail.references) {
-              content += `\nReferences:\n${exploitDetail.references.map(ref => `${ref.title}: ${ref.url}`).join('\n')}`;
-            }
+              if (exploitDetail.references) {
+                content += `\nReferences:\n${exploitDetail.references.map(ref => `${ref.title}: ${ref.url}`).join('\n')}`;
+              }
 
-            exploits[exploitId].push({
-              title: exploitDetail.title,
-              link: exploitDetail.link,
-              content: content,
-              source: exploitDetail.source,
-              location: item.url,
-              date: new Date(item.scanned).toISOString().split('T')[0]
+              exploits[exploitId].push({
+                title: exploitDetail.title,
+                link: exploitDetail.link,
+                content: content,
+                source: exploitDetail.source,
+                location: item.url,
+                date: new Date(item.scanned).toISOString().split('T')[0]
+              });
             });
-          });
+          } else {
+            console.error(`Expected exploitDetails to be an array, but got ${typeof exploitDetails}:`, exploitDetails);
+          }
         });
       }
     });
