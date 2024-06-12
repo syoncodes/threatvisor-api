@@ -29,7 +29,7 @@ app.use("/api/orgusers", orguserRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/endpoints", endpointRoutes);
 app.use("/api/ai", aiRoutes);
-app.use("/api/", general);
+app.use("/api", general);
 
 const port = process.env.PORT || 8080;
 app.listen(port, console.log(`Listening on port ${port}...`));
