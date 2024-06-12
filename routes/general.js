@@ -2,6 +2,9 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
 
 
+const app = express();
+app.use(cors());
+
 const newsSchema = new mongoose.Schema({
   title: String,
   description: String,
