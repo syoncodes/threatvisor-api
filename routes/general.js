@@ -6,7 +6,7 @@ const newsSchema = new mongoose.Schema({
   title: String,
   description: String,
   date: String,
-  coverUrl: String, // Assuming this is a URL to an image in Google Drive
+  coverUrl: String,
   new: Boolean,
   head1: String,
   head2: String,
@@ -14,12 +14,11 @@ const newsSchema = new mongoose.Schema({
   article1: String,
   article2: String,
   article3: String,
-  img1URL: String, // Assuming this is a URL to an image in Google Drive
+  img1URL: String,
+  img2URL: String,
 });
 
 const News = mongoose.model('News', newsSchema);
-
-module.exports = News;
 
 router.get('/featured', async (req, res) => {
   try {
@@ -30,14 +29,26 @@ router.get('/featured', async (req, res) => {
   }
 });
 
+const getGoogleDriveFileId = (url) => {
+  const match = url.match(/\/d\/(.*?)\//);
+  return match ? match[1] : null;
+};
+
 router.get('/image', async (req, res) => {
   const { url } = req.query;
+  const fileId = getGoogleDriveFileId(url);
+  if (!fileId) {
+    return res.status(400).send('Invalid Google Drive URL');
+  }
+
+  const googleDriveUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
   try {
-    const response = await axios.get(url, {
+    const response = await axios.get(googleDriveUrl, {
       responseType: 'arraybuffer',
     });
-    res.set('Content-Type', response.headers['content-type']);
-    res.send(response.data);
+    const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+    const contentType = response.headers['content-type'];
+    res.json({ base64Image, contentType });
   } catch (error) {
     res.status(500).send('Error fetching image from Google Drive');
   }
