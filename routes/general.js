@@ -31,5 +31,16 @@ router.get('/featured', async (req, res) => {
   }
 });
 
+router.get('/proxy', async (req, res) => {
+  const { url } = req.query;
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    res.set('Content-Type', response.headers['content-type']);
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send('Error fetching the resource');
+  }
+});
+
 module.exports = router;
 module.exports.News = News;
