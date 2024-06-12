@@ -15,7 +15,6 @@ const newsSchema = new mongoose.Schema({
   article2: String,
   article3: String,
   img1URL: String, // Assuming this is a URL to an image in Google Drive
-  img1URL: String, // Assuming this is a URL to an image in Google Drive
 });
 
 const News = mongoose.model('News', newsSchema);
@@ -28,6 +27,19 @@ router.get('/featured', async (req, res) => {
     res.json(featuredNews);
   } catch (error) {
     res.status(500).send('Error fetching featured news');
+  }
+});
+
+router.get('/image', async (req, res) => {
+  const { url } = req.query;
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+    });
+    res.set('Content-Type', response.headers['content-type']);
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send('Error fetching image from Google Drive');
   }
 });
 
