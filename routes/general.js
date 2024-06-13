@@ -33,8 +33,8 @@ const getGoogleDriveFileId = (url) => {
   return match ? match[1] : null;
 };
 
-router.get('/image', async (req, res) => {
-  const { encodedUrl } = req.query;
+router.post('/image', async (req, res) => {
+  const { encodedUrl } = req.body;
   const decodedUrl = decodeURIComponent(encodedUrl);
   const fileId = getGoogleDriveFileId(decodedUrl);
   if (!fileId) {
