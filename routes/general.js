@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
 const axios = require("axios");
+
 const newsSchema = new mongoose.Schema({
   title: String,
   description: String,
@@ -48,6 +49,13 @@ router.post('/image', async (req, res) => {
     });
     const base64Image = Buffer.from(response.data, 'binary').toString('base64');
     const contentType = response.headers['content-type'];
+
+    // Set appropriate CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Content-Type', 'application/json');
+
     res.json({ base64Image, contentType });
   } catch (error) {
     res.status(500).send('Error fetching image from Google Drive');
