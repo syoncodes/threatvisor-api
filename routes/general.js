@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
-const axios = require("axios");
 
 const newsSchema = new mongoose.Schema({
   title: String,
@@ -35,9 +34,8 @@ const getGoogleDriveFileId = (url) => {
 };
 
 router.get('/image', async (req, res) => {
-  const { encodedUrl } = req.query;
-  const decodedUrl = decodeURIComponent(encodedUrl);
-  const fileId = getGoogleDriveFileId(decodedUrl);
+  const { url } = req.query;
+  const fileId = getGoogleDriveFileId(url);
   if (!fileId) {
     return res.status(400).send('Invalid Google Drive URL');
   }
@@ -45,14 +43,18 @@ router.get('/image', async (req, res) => {
   const googleDriveUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
   try {
     const response = await axios.get(googleDriveUrl, {
-      responseType: 'arraybuffer',
+      responseType: 'stream',
     });
-    const base64Image = Buffer.from(response.data, 'binary').toString('base64');
-    const contentType = response.headers['content-type'];
-    res.json({ base64Image, contentType });
+
+    // Set the necessary headers to avoid CORB
+    res.setHeader('Content-Type', response.headers['content-type']);
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Optional, for CORS
+
+    response.data.pipe(res);
   } catch (error) {
     res.status(500).send('Error fetching image from Google Drive');
   }
+});
 
 module.exports = router;
 module.exports.News = News;
