@@ -43,15 +43,14 @@ router.get('/image', async (req, res) => {
   const googleDriveUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
   try {
     const response = await axios.get(googleDriveUrl, {
-      responseType: 'arraybuffer',
+      responseType: 'stream',
     });
-    const base64Image = Buffer.from(response.data, 'binary').toString('base64');
-    const contentType = response.headers['content-type'];
 
     // Set the necessary headers to avoid CORB
-    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Type', response.headers['content-type']);
     res.setHeader('Access-Control-Allow-Origin', '*'); // Optional, for CORS
-    res.send(Buffer.from(base64Image, 'base64'));
+
+    response.data.pipe(res);
   } catch (error) {
     res.status(500).send('Error fetching image from Google Drive');
   }
