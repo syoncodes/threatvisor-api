@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
+const axios = require("axios");
 
 const newsSchema = new mongoose.Schema({
   title: String,
