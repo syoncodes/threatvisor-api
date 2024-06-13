@@ -6,7 +6,7 @@ const newsSchema = new mongoose.Schema({
   title: String,
   description: String,
   date: String,
-  coverUrl: String, // Assuming this is a URL to an image in Google Drive
+  coverUrl: String, // Base64 encoded string
   new: Boolean,
   head1: String,
   head2: String,
@@ -14,8 +14,8 @@ const newsSchema = new mongoose.Schema({
   article1: String,
   article2: String,
   article3: String,
-  img1URL: String, // Assuming this is a URL to an image in Google Drive
-  img2URL: String, // Assuming this is a URL to an image in Google Drive
+  img1URL: String, // Base64 encoded string
+  img2URL: String, // Base64 encoded string
 });
 
 const News = mongoose.model('News', newsSchema);
