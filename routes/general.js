@@ -15,7 +15,7 @@ const newsSchema = new mongoose.Schema({
   article2: String,
   article3: String,
   img1URL: String, // Assuming this is a URL to an image in Google Drive
-  img1URL: String, // Assuming this is a URL to an image in Google Drive
+  img2URL: String, // Assuming this is a URL to an image in Google Drive
 });
 
 const News = mongoose.model('News', newsSchema);
