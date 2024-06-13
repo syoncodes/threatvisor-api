@@ -47,7 +47,11 @@ router.get('/image', async (req, res) => {
     });
     const base64Image = Buffer.from(response.data, 'binary').toString('base64');
     const contentType = response.headers['content-type'];
-    res.json({ base64Image, contentType });
+
+    // Set the necessary headers to avoid CORB
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Optional, for CORS
+    res.send(Buffer.from(base64Image, 'base64'));
   } catch (error) {
     res.status(500).send('Error fetching image from Google Drive');
   }
