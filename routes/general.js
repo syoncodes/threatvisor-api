@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
+const bodyParser = require('body-parser');
 const axios = require("axios");
 
 const newsSchema = new mongoose.Schema({
@@ -20,26 +21,15 @@ const newsSchema = new mongoose.Schema({
 
 const News = mongoose.model('News', newsSchema);
 
-router.get('/featured', async (req, res) => {
-  try {
-    const featuredNews = await News.find({});
-    res.json(featuredNews);
-  } catch (error) {
-    res.status(500).send('Error fetching featured news');
-  }
-});
-
 const getGoogleDriveFileId = (url) => {
   const match = url.match(/\/d\/(.*?)\//);
   return match ? match[1] : null;
 };
 
-router.post('/image', async (req, res) => {
-  const { encodedUrl } = req.body;
-  const decodedUrl = decodeURIComponent(encodedUrl);
-  const fileId = getGoogleDriveFileId(decodedUrl);
+const fetchImage = async (url) => {
+  const fileId = getGoogleDriveFileId(url);
   if (!fileId) {
-    return res.status(400).send('Invalid Google Drive URL');
+    throw new Error('Invalid Google Drive URL');
   }
 
   const googleDriveUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
@@ -49,11 +39,26 @@ router.post('/image', async (req, res) => {
     });
     const base64Image = Buffer.from(response.data, 'binary').toString('base64');
     const contentType = response.headers['content-type'];
-
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ base64Image, contentType });
+    return `data:${contentType};base64,${base64Image}`;
   } catch (error) {
-    res.status(500).send('Error fetching image from Google Drive');
+    throw new Error('Error fetching image from Google Drive');
+  }
+};
+
+router.get('/featured', async (req, res) => {
+  try {
+    const featuredNews = await News.find({});
+    const posts = await Promise.all(
+      featuredNews.map(async (post) => {
+        const coverUrl = await fetchImage(post.coverUrl);
+        const img1URL = await fetchImage(post.img1URL);
+        const img2URL = await fetchImage(post.img2URL);
+        return { ...post.toObject(), coverUrl, img1URL, img2URL };
+      })
+    );
+    res.json(posts);
+  } catch (error) {
+    res.status(500).send('Error fetching featured news');
   }
 });
 
