@@ -231,7 +231,7 @@ async function processRequest(req, res) {
       let prompt = req.body.prompt;
   
       // Call the Python API endpoint
-      const response = await axios.post('http://localhost:5000/chat', { user_input: prompt });
+      const response = await axios.post('http://20.163.48.67:5000/chat', { user_input: prompt });
 
 
       const botResponse = response.data.response; // Get response from Python API
