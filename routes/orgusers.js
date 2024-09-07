@@ -154,7 +154,13 @@ router.post("/", async (req, res) => {
     const newOrg = new Organization({
       organizationName: req.body.organizationName,
       organizationID: randomID,
-      usernames: [{ email: newUser.email, admin: true }]
+      usernames: [{ email: newUser.email, admin: true }],
+      ports: {
+        total: 0,
+        open: 0,
+        filtered: 0,
+        total_endpoints: 0
+      }
     });
     await newOrg.save();
 
